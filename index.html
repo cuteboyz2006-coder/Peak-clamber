@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hill Climb Racing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #222; font-family: sans-serif; overflow: hidden; text-align: center; color: white; }
+    #canvas-container { position: relative; width: 100vw; height: 80vh; max-height: 600px; margin: 0 auto; }
+    canvas { background: linear-gradient(#87CEEB, #E0F6FF); display: block; width: 100%; height: 100%; }
+    .controls { display: flex; justify-content: space-around; height: 20vh; background: #333; padding: 10px; }
+    .btn { width: 40%; height: 80%; background: #ff4757; color: white; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; box-shadow: 0 5px #222; }
+    .btn:active { background: #ff6b81; transform: translateY(4px); box-shadow: 0 1px #222; }
+    #gas { background: #2ed573; }
+    #gas:active { background: #7bed9f; }
+  </style>
+</head>
+<body>
+
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="brake">BRAKE / REVERSE</button>
+    <button class="btn" id="gas">GAS / SPEED</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let car = { x: 100, y: 200, vx: 0, vy: 0, angle: 0, vAngle: 0 };
+    let gasPressed = false;
+    let brakePressed = false;
+    let score = 0;
+
+    function getTerrainHeight(x) {
+      return Math.sin(x * 0.005) * 60 + Math.cos(x * 0.01) * 30 + canvas.height - 150;
+    }
+
+    function update() {
+      if (gasPressed) car.vx += 0.15;
+      if (brakePressed) car.vx -= 0.1;
+
+      car.vx *= 0.98; // Friction
+      car.x += car.vx;
+
+      let groundY = getTerrainHeight(car.x);
+      let nextGroundY = getTerrainHeight(car.x + 10);
+      let targetAngle = Math.atan2(nextGroundY - groundY, 10);
+
+      car.y = groundY - 15;
+      car.angle = targetAngle;
+
+      score = Math.max(score, Math.floor(car.x / 10));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Terrain
+      ctx.fillStyle = "#4cd137";
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height);
+      for (let x = 0; x < canvas.width; x += 5) {
+        let worldX = car.x - 100 + x;
+        ctx.lineTo(x, getTerrainHeight(worldX));
+      }
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.fill();
+
+      // Draw Car
+      ctx.save();
+      ctx.translate(100, car.y);
+      ctx.rotate(car.angle);
+      
+      // Car Body
+      ctx.fillStyle = "#e84118";
+      ctx.fillRect(-20, -15, 40, 15);
+      
+      // Wheels
+      ctx.fillStyle = "#2f3640";
+      ctx.beginPath();
+      ctx.arc(-12, 0, 7, 0, Math.PI * 2);
+      ctx.arc(12, 0, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Score Text
+      ctx.fillStyle = "#2f3640";
+      ctx.font = "bold 20px sans-serif";
+      ctx.fillText("Distance: " + score + "m", 20, 30);
+
+      requestAnimationFrame(() => {
+        update();
+        draw();
+      });
+    }
+
+    // Touch / Button Controls
+    const gasBtn = document.getElementById('gas');
+    const brakeBtn = document.getElementById('brake');
+
+    gasBtn.addEventListener('touchstart', (e) => { e.preventDefault(); gasPressed = true; });
+    gasBtn.addEventListener('touchend', () => gasPressed = false);
+    gasBtn.addEventListener('mousedown', () => gasPressed = true);
+    gasBtn.addEventListener('mouseup', () => gasPressed = false);
+
+    brakeBtn.addEventListener('touchstart', (e) => { e.preventDefault(); brakePressed = true; });
+    brakeBtn.addEventListener('touchend', () => brakePressed = false);
+    brakeBtn.addEventListener('mousedown', () => brakePressed = true);
+    brakeBtn.addEventListener('mouseup', () => brakePressed = false);
+
+    draw();
+  </script>
+</body>
+</html>
