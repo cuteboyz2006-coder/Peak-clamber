@@ -38,7 +38,7 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m py_compile main.py
+          python -m py_compile main.py app.py layla_engine.py
 
       - name: Test Layla response
         run: |
@@ -51,6 +51,8 @@ jobs:
       - name: Check project structure
         run: |
           test -f main.py
+          test -f app.py
+          test -f layla_engine.py
           test -f requirements.txt
           test -f models/SmolLM2-135M-Instruct-Q4_K_M.gguf
           echo "LAYLA2 project structure OK"
