@@ -39,6 +39,9 @@ jobs:
       - name: Check Python syntax
         run: |
           python -m py_compile main.py
+      - name: Test Layla response
+        run: |
+          python main.py "Hello Layla"
 
       - name: Check project structure
         run: |
