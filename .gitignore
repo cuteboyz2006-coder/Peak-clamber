@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+
+.venv/
+venv/
+env/
+
+models/*.gguf
+
+build/
+dist/
+
+*.apk
+*.aab
+
+.idea/
+.vscode/
