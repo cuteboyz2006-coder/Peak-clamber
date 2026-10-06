@@ -27,8 +27,9 @@ jobs:
       - name: Download Layla GGUF model
         run: |
           mkdir -p models
-          wget --show-progress -O models/SmolLM2-135M-Instruct-Q4_K_M.gguf \
-            "https://huggingface.co/tensorblock/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q4_K_M.gguf?download=true"
+          wget --show-progress \
+            -O models/SmolLM2-135M-Instruct-Q4_K_M.gguf \
+            "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q4_K_M.gguf?download=true"
 
       - name: Check model
         run: |
