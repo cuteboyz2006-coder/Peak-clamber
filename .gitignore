@@ -6,6 +6,7 @@ venv/
 env/
 
 models/*.gguf
+layla_memory.json
 
 build/
 dist/
