@@ -39,9 +39,14 @@ jobs:
       - name: Check Python syntax
         run: |
           python -m py_compile main.py
+
       - name: Test Layla response
         run: |
           python main.py "Hello Layla"
+
+      - name: Test Layla memory
+        run: |
+          python main.py --test-memory
 
       - name: Check project structure
         run: |
@@ -49,3 +54,7 @@ jobs:
           test -f requirements.txt
           test -f models/SmolLM2-135M-Instruct-Q4_K_M.gguf
           echo "LAYLA2 project structure OK"
+
+      - name: Complete
+        run: |
+          echo "LAYLA2 local AI and memory tests completed successfully."
