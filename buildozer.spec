@@ -10,6 +10,7 @@ source.include_exts = py,json,txt,png,jpg,jpeg,kv,atlas,gguf
 version = 1.0
 
 requirements = python3,kivy
+android.sdk_path = /usr/local/lib/android/sdk
 
 orientation = portrait
 
