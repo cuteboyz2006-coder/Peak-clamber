@@ -10,6 +10,7 @@ source.include_exts = py,json,txt,png,jpg,jpeg,kv,atlas,gguf
 version = 1.0
 
 requirements = python3,kivy
+14p4a.branch = v2024.01.21
 android.sdk_path = /usr/local/lib/android/sdk
 
 orientation = portrait
