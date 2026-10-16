@@ -6,9 +6,6 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 
-from layla_engine import LaylaEngine
-
-
 Window.clearcolor = (0.01, 0.005, 0.02, 1)
 
 
@@ -22,8 +19,25 @@ class ChatScreen(BoxLayout):
             **kwargs
         )
 
-        self.layla = LaylaEngine()
+        # AI engine will be loaded after the interface is created.
+        self.layla = None
 
+        self.status_label = Label(
+            text="Layla is starting...",
+            size_hint_y=None,
+            height=48,
+            halign="left",
+            valign="middle"
+        )
+
+        self.status_label.bind(
+            size=lambda instance, size:
+            setattr(instance, "text_size", size)
+        )
+
+        self.add_widget(self.status_label)
+
+        # Chat area
         self.chat = BoxLayout(
             orientation="vertical",
             size_hint_y=None,
@@ -34,11 +48,11 @@ class ChatScreen(BoxLayout):
             minimum_height=self.chat.setter("height")
         )
 
-        scroll = ScrollView()
-        scroll.add_widget(self.chat)
+        self.scroll = ScrollView()
+        self.scroll.add_widget(self.chat)
+        self.add_widget(self.scroll)
 
-        self.add_widget(scroll)
-
+        # Message input
         bottom = BoxLayout(
             size_hint_y=None,
             height=55,
@@ -70,41 +84,96 @@ class ChatScreen(BoxLayout):
 
         self.add_widget(bottom)
 
+        # Load the AI engine after the UI exists.
+        try:
+            from layla_engine import LaylaEngine
+
+            self.layla = LaylaEngine()
+
+            self.status_label.text = "Layla is ready."
+
+        except Exception as error:
+
+            self.status_label.text = (
+                "Layla AI could not start."
+            )
+
+            self.add_message(
+                "Startup error",
+                f"{type(error).__name__}: {error}"
+            )
+
+            self.add_message(
+                "Next step",
+                "Please note the exact error shown above."
+            )
+
     def add_message(self, speaker, message):
+
         label = Label(
             text=f"{speaker}: {message}",
             size_hint_y=None,
-            text_size=(None, None),
             halign="left",
             valign="top",
             padding=(8, 8)
         )
 
         label.bind(
+            width=lambda instance, width:
+            setattr(
+                instance,
+                "text_size",
+                (max(1, width - 16), None)
+            )
+        )
+
+        label.bind(
             texture_size=lambda instance, size:
-            setattr(instance, "height", size[1] + 16)
+            setattr(
+                instance,
+                "height",
+                size[1] + 16
+            )
         )
 
         self.chat.add_widget(label)
 
-    def send_message(self, *args):
-        text = self.input_box.text.strip()
+        self.chat.height = self.chat.minimum_height
 
-        if not text:
+        self.scroll.scroll_y = 0
+
+    def send_message(self, *args):
+
+        message = self.input_box.text.strip()
+
+        if not message:
             return
 
         self.input_box.text = ""
 
-        self.add_message("You", text)
+        self.add_message("You", message)
 
-        if text.lower() == "exit":
+        if message.lower() == "exit":
             App.get_running_app().stop()
             return
 
+        if self.layla is None:
+
+            self.add_message(
+                "Layla",
+                "The AI engine did not start. "
+                "Please check the Startup error above."
+            )
+
+            return
+
         try:
-            answer = self.layla.chat(text)
+            answer = self.layla.chat(message)
+
         except Exception as error:
-            answer = f"Error: {error}"
+            answer = (
+                f"{type(error).__name__}: {error}"
+            )
 
         self.add_message("Layla", answer)
 
